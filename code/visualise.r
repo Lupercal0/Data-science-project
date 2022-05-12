@@ -78,3 +78,7 @@ Visual = function(path, row_num){
   plot(ts_10_14, main ='slicing every 5 years')
   plot(ts_15_19, main ='slicing every 5 years')
 }
+
+ts_05_09 %>% diff() %>% ggtsdisplay(main="differencing plot of national unemployment rate")
+autoresult2=auto.arima(ts_national_nc,seasonal = TRUE)
+plot(forecast(autoresult2))
