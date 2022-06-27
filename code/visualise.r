@@ -1,4 +1,5 @@
 usadata = read.csv(file = 'C:/Users/a1360/OneDrive/桌面/assignment/dsp/usa_unemployment_nsa.csv')
+labour = read.csv(file = 'C:/Users/a1360/OneDrive/桌面/assignment/dsp/labour_backup.csv')
 
 #national:
 temp = c(usadata[1,])
