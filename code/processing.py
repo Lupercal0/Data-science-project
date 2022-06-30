@@ -15,11 +15,6 @@ for row in spamreader:
         flag = 2
         col_name = row.keys()
         
-        """flag = 1
-        col_name = row
-        #col_name[0] = 'State'
-        print(col_name[0][1])
-        #continue"""
     
     else:
         #print(row)
