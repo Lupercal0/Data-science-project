@@ -91,3 +91,12 @@ Visual = function(path, row_num){
 ts_05_09 %>% diff() %>% ggtsdisplay(main="differencing plot of national unemployment rate")
 autoresult2=auto.arima(ts_national_nc,seasonal = TRUE)
 plot(forecast(autoresult2))
+
+#
+#here should be forecast funcation, it should give an output matrix with 50col(51 if national is included later)
+#and 12(or whatever time period want to forecat)
+#
+
+#forecast_res = forecast(xxxx)
+recon_s = c(percentage[,556])#use the newest for now and with only 2 level, it is very simple
+#national_forecast = forecast_res%*%recon_s
