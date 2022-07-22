@@ -46,7 +46,7 @@ compare=function(end_year,end_month,forecast){
 }
 
 final_diff=compare(2018,12,forecast_res)
-plot(final_diff, type="l")
+plot(final_diff, type="l",main="difference between prediction and real, in 12 month",xlab="month", ylab="difference in percentage")
 #pred：4.589013 real：4.5 time:2018 Jan
 #pred：3.533 real：3.7 time:2018 dec
 #pred：4.373029 real：4.4 time:2019 jan
