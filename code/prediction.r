@@ -1,13 +1,13 @@
 #please first enable library here, like forecast
 
-usadata = read.csv(file = 'C:/Users/a1360/OneDrive/桌面/assignment/dsp/usa_unemployment_nsa.csv')
-labour = read.csv(file = 'C:/Users/a1360/OneDrive/桌面/assignment/dsp/labour_backup.csv')
-percentage = read.csv(file = 'C:/Users/a1360/OneDrive/桌面/assignment/dsp/rate.csv')
+usadata = read.csv(file = 'F:/UNIMELB/Graduate/DSProject/Data-scence-project/data/usa_unemployment_nsa.csv')
+labour = read.csv(file = 'F:/UNIMELB/Graduate/DSProject/Data-scence-project/data/labour_backup.csv')
+percentage = read.csv(file = 'F:/UNIMELB/Graduate/DSProject/Data-scence-project/data/rate.csv')
 
 
 #
-#here should be forecast funcation, it should give an output matrix with 50col(51 if national is included later)
-#and 12(or whatever time period want to forecat)
+#here should be forecast function, it should give an output matrix with 50col(51 if national is included later)
+#and 12(or whatever time period want to forecast)
 #
 
 #benchmark using,current using arima.auto, planning to add argument of method or more
@@ -36,6 +36,6 @@ forecast_fun = function(train_ts){
   return(prediction)
 }
 
-#forecast_res = forecast(xxxx)
+forecast_res = forecast(xxxx)
 recon_s = c(percentage[,556])#use the newest for now and with only 2 level, it is very simple
-#national_forecast = forecast_res%*%recon_s
+national_forecast = forecast_res%*%recon_s
