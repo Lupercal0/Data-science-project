@@ -15,6 +15,9 @@ state_names = c()
 state_adf_pvalues = c()
 state_stationary_tatus = c()
 num =c()
+all_ts = list()
+nonstationary_ts = list()
+stationary_ts = list()
 
 #statewise model analysis,just put whatever state index you want in the for loop
 for(i in 1:51){
@@ -30,9 +33,15 @@ for(i in 1:51){
     state_names[i] = state_name
     state_adf_pvalues[i] = adf.test(ts_state_data)$p.value
     if (adf.test(ts_state_data)$p.value > 0.05) {
-      state_stationary_tatus[i] = "non-stationary"
-      num = append(num,i)
+        state_stationary_tatus[i] = "non-stationary"
+        num = append(num,i)
+        nonstationary_ts[[state_name]] = ts_state_data
     } else {
-      state_stationary_tatus[i] = "stationary"
+        state_stationary_tatus[i] = "stationary"
+        stationary_ts[[state_name]] = ts_state_data
     }
   }
+
+for (name in names(nonstationary_ts)) {
+  stationary_ts[[name]]=diff(nonstationary_ts[[name]], differences = 1)
+}
