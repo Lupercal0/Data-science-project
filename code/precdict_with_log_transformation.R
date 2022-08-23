@@ -142,3 +142,7 @@ plot(final_diff, type="l",main="difference between prediction and real",xlab="mo
 lines(final_diff_log,col = "blue")
 abline(h=0)
 legend(0.5, legend=c("original", "log transfered"),col=c("red", "blue"), lty=1:2, cex=0.8)
+
+#check variance of difference/error
+var(final_diff)
+var(final_diff_log)
