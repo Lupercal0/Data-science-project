@@ -61,51 +61,59 @@ plot(final_diff, type="l",main="(With log transformation)difference between pred
 recon_s = c(percentage[,556])#use the newest for now and with only 2 level, it is very simple
 #national_forecast = forecast_res%*%recon_s
 
+#doing the same bussiness using another function, theoritically they shall be the same.
 
-forecast_fun = function(train_ts){
+
+#to avoid using covid data, whatever period want ot test, please ensuretest dataset ends before 12/2019
+#for both of two forecast function below, 
+#train_ts: is data needed to train and test(assume to be usada here)
+#end_year, end_month: year and month when training set ends(yyyy/mm)
+#period:how many periods you want to forecast, 1 period is 1 month
+#begin_month:how many month are there between end of the trainning set(defined by end_year and end_month), and end of dataset(03/2022)
+forecast_fun = function(train_ts, end_year, end_month, period, begin_month){
   temp = c(train_ts[1,])
   temp = temp[2:length(temp)]
   state_raw = as.vector(unlist(temp))
-  state_data=state_raw[1:(length(state_raw)-39)]
-  ts_state_data=ts(state_data,start=c(1976, 1), end=c(2018, 12), frequency=12)
+  state_data=state_raw[1:(length(state_raw)-begin_month)]
+  ts_state_data=ts(state_data,start=c(1976, 1), end=c(end_year, end_month), frequency=12)
   #above generate ts of 1976-2018 for each state
   autoresult=auto.arima(ts_state_data,seasonal = TRUE)
-  prediction = forecast(autoresult, h=12)
+  prediction = forecast(autoresult, h=period)
   prediction = t(t(as.vector(prediction$mean[1:length(prediction$mean)])))
   for(i in 2:51){
     temp = c(train_ts[i,])
     temp = temp[2:length(temp)]
     state_raw = as.vector(unlist(temp))
-    state_data=state_raw[1:(length(state_raw)-39)]
-    ts_state_data=ts(state_data,start=c(1976, 1), end=c(2018, 12), frequency=12)
+    state_data=state_raw[1:(length(state_raw)-begin_month)]
+    ts_state_data=ts(state_data,start=c(1976, 1), end=c(end_year, end_month), frequency=12)
     #above generate ts of 1976-2018 for each state
     autoresult=auto.arima(ts_state_data,seasonal = TRUE)
-    fore_res = forecast(autoresult, h=12)
+    fore_res = forecast(autoresult, h=period)
     fore_res = t(t(as.vector(fore_res$mean[1:length(fore_res$mean)])))
     prediction = cbind(prediction, fore_res)
   }
   return(prediction)
 }
 
-forecast_fun_log = function(train_ts){
+forecast_fun_log = function(train_ts, end_year, end_month, period, begin_month){
   temp = c(train_ts[1,])
   temp = temp[2:length(temp)]
   state_raw = as.vector(unlist(temp))
-  state_data=state_raw[1:(length(state_raw)-39)]
-  ts_state_data=ts(state_data,start=c(1976, 1), end=c(2018, 12), frequency=12)
+  state_data=state_raw[1:(length(state_raw)-begin_month)]
+  ts_state_data=ts(state_data,start=c(1976, 1), end=c(end_year, end_month), frequency=12)
   #above generate ts of 1976-2018 for each state
   autoresult=auto.arima(log(ts_state_data),seasonal = TRUE)
-  prediction = forecast(autoresult, h=12)
+  prediction = forecast(autoresult, h=period)
   prediction = t(t(as.vector(exp(prediction$mean[1:length(prediction$mean)]))))
   for(i in 2:51){
     temp = c(train_ts[i,])
     temp = temp[2:length(temp)]
     state_raw = as.vector(unlist(temp))
-    state_data=state_raw[1:(length(state_raw)-39)]
-    ts_state_data=ts(state_data,start=c(1976, 1), end=c(2018, 12), frequency=12)
+    state_data=state_raw[1:(length(state_raw)-begin_month)]
+    ts_state_data=ts(state_data,start=c(1976, 1), end=c(end_year, end_month), frequency=12)
     #above generate ts of 1976-2018 for each state
     autoresult=auto.arima(log(ts_state_data),seasonal = TRUE)
-    fore_res = forecast(autoresult, h=12)
+    fore_res = forecast(autoresult, h=period)
     fore_res = t(t(as.vector(exp(fore_res$mean[1:length(fore_res$mean)]))))
     prediction = cbind(prediction, fore_res)
   }
