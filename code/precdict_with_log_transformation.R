@@ -69,7 +69,7 @@ recon_s = c(percentage[,556])#use the newest for now and with only 2 level, it i
 #train_ts: is data needed to train and test(assume to be usada here)
 #end_year, end_month: year and month when training set ends(yyyy/mm)
 #period:how many periods you want to forecast, 1 period is 1 month
-#begin_month:how many month are there between end of the trainning set(defined by end_year and end_month), and end of dataset(03/2022)
+#begin_month:how many month are there between end of the trainning set(defined by end_year and end_month), and end of dataset(03/2022), shoud be 27+period
 forecast_fun = function(train_ts, end_year, end_month, period, begin_month){
   temp = c(train_ts[1,])
   temp = temp[2:length(temp)]
@@ -120,21 +120,25 @@ forecast_fun_log = function(train_ts, end_year, end_month, period, begin_month){
   return(prediction)
 }
 
-
-compare=function(end_year,end_month,forecast){
+#this function assume using usada as real value
+#end_year and end_month: end timepoint of the TRAINNING set
+#forecast: the forecast generate, the period of this should fits the next argument
+#period:how many period(s), in month your forecast are in
+compare=function(end_year,end_month,forecast, period){
   xx=as.matrix(forecast)
   yy=matrix(percentage[,(2+(end_year-1976)*12+end_month)])
   result=as.matrix(xx%*%yy)
-  data=as.numeric(usadata[52,c((2+(end_year-1976)*12+end_month):(2+(end_year-1976)*12+11+end_month))])
+  data=as.numeric(usadata[52,c((2+(end_year-1976)*12+end_month):(2+(end_year-1976)*12+11+period+end_month))])
   diff=result-matrix(data)
   return(diff) 
 }
 
-forecast_res = forecast_fun(usadata)
-forecast_res_log = forecast_fun_log(usadata)
+forecast_res = forecast_fun(usadata, 2017,12,24, 51)
+forecast_res_log = forecast_fun_log(usadata, 2017,12,24, 51)
 
-final_diff = compare(2018,12,forecast_res)
-final_diff_log=compare(2018,12,forecast_res_log)
-plot(final_diff, type="l",main="difference between prediction and real, in 12 month",xlab="month", ylab="difference in percentage",col="red")
+final_diff = compare(2017,12,forecast_res)
+final_diff_log=compare(2017,12,forecast_res_log)
+plot(final_diff, type="l",main="difference between prediction and real",xlab="month", ylab="difference in percentage",col="red", ylim = c(-0.3,1))
 lines(final_diff_log,col = "blue")
+abline(h=0)
 legend(0.5, legend=c("original", "log transfered"),col=c("red", "blue"), lty=1:2, cex=0.8)
