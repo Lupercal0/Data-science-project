@@ -38,8 +38,9 @@ compare_real=function(end_year,end_month,forecast){
 }
 
 final_diff=compare(2018,12,forecast_res, linear_model)
-plot(final_diff, type="l",main="difference between prediction and real, in 12 month, with regression",xlab="month", ylab="difference in percentage")
+plot(final_diff, type="l",main="difference between prediction and real, in 12 month",xlab="month", ylab="difference in percentage", col="blue")
 
 final_diff_real=compare_real(2018,12,forecast_res)
-plot(final_diff_real, type="l",main="difference between prediction and real, in 12 month, with labor force rate",xlab="month", ylab="difference in percentage")
-
+#plot(final_diff_real, type="l",main="difference between prediction and real, in 12 month, with labor force rate",xlab="month", ylab="difference in percentage")
+lines(final_diff_real, col="red")
+legend(0.5, legend=c("with labour weight", "with regression weight"),col=c("red", "blue"), lty=1:2, cex=0.8)
