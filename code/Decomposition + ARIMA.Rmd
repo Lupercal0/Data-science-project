@@ -1,0 +1,83 @@
+---
+title: "decomposition+ARIMA"
+author: "Zoe Wu"
+date: '2022-08-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## import package and file
+```{r}
+usadata = read.csv(file = 'usa_unemployment_nsa.csv')
+labour = read.csv(file = 'labour_backup.csv')
+percentage = read.csv(file = 'rate.csv')
+library(forecast)
+```
+
+## show the stl plot
+```{r}
+temp = c(usadata[1,])
+temp = temp[2:length(temp)]
+state_raw = as.vector(unlist(temp))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2017, 12), frequency=12)
+
+ts_state_data %>%
+stl(t.window=13, s.window="periodic", robust=TRUE) %>%
+autoplot()
+```
+
+## decomposition by STL and apply ARIMA
+```{r}
+decom_forecast = function(train_ts,end_year,end_month){
+  temp = c(train_ts[1,])
+  temp = temp[2:length(temp)]
+  state_raw = as.vector(unlist(temp))
+  ts_state_data=ts(state_raw,start=c(1976, 1), end=c(end_year, end_month), frequency=12)
+
+  stl_fit <- stl(ts_state_data,t.window = 13, s.window = "periodic", robust = TRUE)
+  h = frequency(stl_fit$time.series) * 2
+  prediction <- forecast(stl_fit,method="arima",h = h) 
+  prediction <- t(t(as.vector(prediction$mean[1:length(prediction$mean)])))
+
+#  prediction <- stlf(ts_state_data,method='arima',h=24)
+#  prediction <- t(t(as.vector(prediction$mean[1:length(prediction$mean)])))
+  for(i in 2:51){
+    temp = c(train_ts[i,])
+    temp = temp[2:length(temp)]
+    state_raw = as.vector(unlist(temp))
+    ts_state_data=ts(state_raw,start=c(1976, 1), end=c(end_year, end_month), frequency=12)
+
+    stl_fit <- stl(ts_state_data,t.window = 13, s.window = "periodic", robust = TRUE)
+    h = frequency(stl_fit$time.series) * 2
+    fore_res <-forecast(stl_fit,method="arima",h = h) 
+    fore_res <- t(t(as.vector(fore_res$mean[1:length(fore_res$mean)])))
+    prediction <- cbind(prediction,fore_res)
+
+
+  # fore_res <- stlf(ts_state_data,method='arima',h=24)
+  # fore_res <- t(t(as.vector(fore_res$mean[1:length(fore_res$mean)])))
+  }
+  return(prediction)
+}
+
+decom_forecast <- decom_forecast(usadata,2017,12)
+
+
+compare = function(end_year,end_month,forecast){
+  xx=as.matrix(forecast)
+  yy=matrix(percentage[,(2+(end_year-1976)*12+end_month)])
+  result=as.matrix(xx%*%yy)
+  data=as.numeric(usadata[52,c((2+(end_year-1976)*12+end_month):(2+(end_year-1976)*12+23+end_month))])
+  diff=result-matrix(data)
+  return(diff) 
+}
+
+
+diff <- compare(2017,12,decom_forecast)
+var(diff)
+plot(diff, type="l",main="difference between prediction and real",xlab="month", ylab="difference in percentage",ylim = c(0.1,0.8))
+```
+
