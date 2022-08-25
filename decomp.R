@@ -12,7 +12,7 @@ STL_forecast= function(train_ts){
   ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2017, 12), frequency=12)
   
   fit <- stl(ts_state_data,t.window=5, s.window = "periodic")
-  stl_pred=forecast(fit,method="naive",h=24) 
+  stl_pred=forecast(fit,method="arima",h=24) 
   stl_res= t(t(as.vector(stl_pred$mean[1:length(stl_pred$mean)])))
   
 #  stlf_pred = stlf(ts_state_data,method='arima',h=24)
@@ -24,7 +24,7 @@ STL_forecast= function(train_ts){
     ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2017, 12), frequency=12)
     
     fit <- stl(ts_state_data,t.window=13, s.window = "periodic")
-    stl_pred<-forecast(fit,method="naive",h=24) 
+    stl_pred<-forecast(fit,method="arima",h=24) 
     stl_pred= t(t(as.vector(stl_pred$mean[1:length(stl_pred$mean)])))
     stl_res=cbind(stl_res,stl_pred)
     
