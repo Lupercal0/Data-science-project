@@ -30,8 +30,9 @@ forecast_fun_withnational = function(train_ts, end_year, end_month, period, begi
 #generate S matrix needed by reconciliation
 
 average_weight = t(as.matrix(rowMeans(percentage[-c(1)]), ncol=1))
+filler = matrix(1,1,51)
 S = matrix(0,52,51)
-S[1,] = average_weight
+S[1,]=filler
 for (i in 2:52){
-  S[i, i - 1] = average_weight[i-1] 
+  S[i,i-1] = 1
 }
