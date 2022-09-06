@@ -36,3 +36,8 @@ S[1,]=filler
 for (i in 2:52){
   S[i,i-1] = 1
 }
+
+G = matrix(0, 51, 52)
+G[,1] = t(average_weight)
+
+
