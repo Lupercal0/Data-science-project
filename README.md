@@ -17,7 +17,7 @@ there are 3 folders
 &emsp;&emsp;&emsp;regression method include in recon.r  
 &emsp;The dada folder:  
 &emsp;&emsp;include version of:  
-&emsp;&emsp;&emsp;usa unemployment rate, including national data, 50 states and capital teritory data, as usa_unemployment_nsa.csvv
+&emsp;&emsp;&emsp;usa unemployment rate, including national data, 50 states and capital teritory data
 &emsp;&emsp;&emsp;processed usa labor force data, as weight, in rate.csv  
 &emsp;the code folder:  
 &emsp;&emsp;include expriment and preprocess data, most has been summarised in to summarise folder  
