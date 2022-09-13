@@ -6,7 +6,7 @@ forecast      (by Rob Hyndman)
 
 
 there are 3 folders  
-    The file in summarise folder here is mainly about the summarise of work, which include several part:  
+    &nbspThe file in summarise folder here is mainly about the summarise of work, which include several part:  
         Forecast part include two method:ARIMA and LSTM  
             LSTM method is in the LSTM.ipynb file  
             ARIMA method is in the forecast.r file  
