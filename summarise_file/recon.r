@@ -126,6 +126,14 @@ prediction = forecast_fun_withnational(usadata, 2018, 12, 12, 39)
 recon = S%*%G%*%t(prediction)
 final_diff = forecast_fun_withnational(usadata, 2018, 12, 12, 39)
 
+# another comparing with directly forecast base on national data directly
+autoresult=auto.arima(ts_national_data,seasonal = TRUE)
+prediction = forecast(autoresult, h=12)
+prediction_na = t(t(as.vector(prediction$mean[1:length(prediction$mean)])))
+real = c(usadata[52,])
+real = real[(length(real)-38):(length(real)-27)]
+real = as.vector(unlist(real))
+diff_real = prediction_na - real
 
 #print the plot of error , comparing three methods(just weighted sum ,recon and regression result)
 data=as.numeric(usadata[52,c((2+(2018-1976)*12+12):(2+(2018-1976)*12+11+12))])
@@ -136,4 +144,5 @@ original_weight = compare_real(2018,12,original)
 plot(diff, type="l",main="difference between prediction and real, by reconcilation",xlab="month", ylab="difference in percentage",col="red", ylim = c(0,1.4))
 lines(original_weight, col = "green")
 lines(final_diff, col = "blue")
-legend("topleft", c("with recon", "with easy weight", "with regression"),lty = c(1,1),col = c("red", "green", "blue"))
+lines(diff_real, col = "black")
+legend("topleft", c("with recon", "with easy weight", "with regression","direct national"),lty = c(1,1),col = c("red", "green", "blue", "black"),cex=0.7)
