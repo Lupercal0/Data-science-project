@@ -1,0 +1,745 @@
+---
+title: "Parameter_tuning14-26"
+author: "RuiWang"
+date: '2022-09-14'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# NO.14 Illinois
+order=c(2,1,2),seasonal=c(1,0,2))AICc=93.64 RMSE 0.6938496
+# NO.15 Indiana
+order=c(1,1,1),seasonal=c(0,1,1))AICc=150.93 RMSE 0.4969712
+# NO.16 Iowa
+order=c(1,1,2),seasonal=c(1,1,1)) AICc=-177.73 RMSE 0.5313282
+# NO.17 Kansas
+order=c(3,1,4),seasonal=c(0,1,2))AICc=-202.92 RMSE 0.3559289
+# NO.18 Kentucky
+order=c(3,0,1),seasonal=c(1,1,1)) AICc=40.98 RMSE 0.7142507
+# NO.19 Kentucky
+order=c(5,1,2),seasonal=c(0,1,1))AICc=178.62 RMSE 0.5966853
+# NO.20 Maine
+order=c(3,1,3),seasonal=c(1,1,3))AICc=20.93 RMSE 0.3488586
+# NO.21 Maryland
+order=c(2,1,1),seasonal=c(3,1,1))AICc=-155.04 RMSE0.6156309
+# NO.22 Massachusetts
+order=c(1,1,2),seasonal=c(0,1,1))AICc=-413.85 RMSE 0.4157668
+# NO.23 Michigan
+order=c(2,0,1),seasonal=c(0,1,1))AICc=294.23 RMSE 0.9963709
+# NO.24 Minnesota
+order=c(3,0,2),seasonal=c(3,1,1))AICc=-144.05 RMSE 0.6711534
+# NO.25 Mississippi
+order=c(3,0,2),seasonal=c(3,1,1))AICc=385.84 RMSE 0.6710053
+# NO.26 Missouri
+order=c(3,0,1),seasonal=c(0,1,1))AICc=-49.16 RMSE 0.7054886
+```{r}
+library(forecast)
+library(tseries)
+library(Metrics)
+usadata = read.csv(file = 'F:/UNIMELB/Graduate/DSProject/Data-scence-project/data/usa_unemployment_nsa.csv')
+labour = read.csv(file = 'F:/UNIMELB/Graduate/DSProject/Data-scence-project/data/labour_backup.csv')
+percentage = read.csv(file = 'F:/UNIMELB/Graduate/DSProject/Data-scence-project/data/rate.csv')
+```
+# NO.14 Illinois
+order=c(2,1,2),seasonal=c(1,0,2))AICc=93.64 RMSE 0.6938496
+```{r}
+usadata[14,1]
+state14 = c(usadata[14,])
+state14 = state14[2:length(state14)]
+state_raw = as.vector(unlist(state14))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=2.2e-16
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(2,1,2),seasonal=c(1,0,2))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.15 Indiana
+order=c(1,1,1),seasonal=c(0,1,1))AICc=150.93 RMSE 0.4969712
+```{r}
+usadata[15,1]
+state15 = c(usadata[15,])
+state15 = state15[2:length(state15)]
+state_raw = as.vector(unlist(state15))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(1,1,1),seasonal=c(0,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.16 Iowa
+order=c(1,1,2),seasonal=c(1,1,1)) AICc=-177.73 RMSE 0.5313282
+
+```{r}
+usadata[16,1]
+state16 = c(usadata[16,])
+state16 = state16[2:length(state16)]
+state_raw = as.vector(unlist(state16))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(1,1,1),seasonal=c(0,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.17 Kansas
+order=c(3,1,4),seasonal=c(0,1,2))AICc=-202.92 RMSE 0.3559289
+
+```{r}
+usadata[17,1]
+state = c(usadata[17,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(1,1,1),seasonal=c(0,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.18 Kentucky
+order=c(3,0,1),seasonal=c(1,1,1)) AICc=40.98 RMSE 0.7142507
+
+```{r}
+usadata[18,1]
+state = c(usadata[18,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(1,1,1),seasonal=c(0,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.19 Kentucky
+order=c(5,1,2),seasonal=c(0,1,1))AICc=178.62 RMSE 0.5966853
+
+```{r}
+usadata[19,1]
+state = c(usadata[19,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(7,1,3),seasonal=c(1,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.20 Maine
+order=c(3,1,3),seasonal=c(1,1,3))AICc=20.93 RMSE 0.3488586
+
+```{r}
+usadata[20,1]
+state = c(usadata[20,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(3,1,3),seasonal=c(1,1,3))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.21 Maryland
+order=c(2,1,1),seasonal=c(3,1,1))AICc=-155.04 RMSE0.6156309
+
+```{r}
+usadata[21,1]
+state = c(usadata[21,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(2,1,1),seasonal=c(3,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.22 Massachusetts
+order=c(1,1,2),seasonal=c(0,1,1))AICc=-413.85 RMSE 0.4157668
+
+```{r}
+usadata[22,1]
+state = c(usadata[22,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(1,1,2),seasonal=c(0,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.23 Michigan
+order=c(2,0,1),seasonal=c(0,1,1))AICc=294.23 RMSE 0.9963709
+
+```{r}
+usadata[23,1]
+state = c(usadata[23,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(2,0,1),seasonal=c(0,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+
+# NO.24 Minnesota
+order=c(3,0,2),seasonal=c(3,1,1))AICc=-144.05 RMSE 0.6711534
+
+```{r}
+usadata[24,1]
+state = c(usadata[24,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(3,0,2),seasonal=c(3,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.25 Mississippi
+order=c(3,0,2),seasonal=c(3,1,1))AICc=385.84 RMSE 0.6710053
+
+```{r}
+usadata[25,1]
+state = c(usadata[25,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(3,0,2),seasonal=c(3,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
+# NO.26 Missouri
+order=c(3,0,1),seasonal=c(0,1,1))AICc=-49.16 RMSE 0.7054886
+
+```{r}
+usadata[26,1]
+state = c(usadata[26,])
+state = state[2:length(state)]
+state_raw = as.vector(unlist(state))
+ts_state_data=ts(state_raw,start=c(1976, 1), end=c(2018, 12), frequency=12)
+
+# p-value = 0.005 < 0.05
+autoresult = auto.arima(ts_state_data,seasonal = TRUE)
+checkresiduals(autoresult)#p_v=
+
+#record RMSE
+fore = forecast(autoresult,h=24)
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)#0.55195
+
+# check acf and pacf plot
+acf(ts_state_data)
+pacf(ts_state_data)
+# p-value >0.05 non-stationary
+adf.test(ts_state_data)
+
+# difference ts , d = 1
+d = diff(ts_state_data, differences=1)
+plot.ts(d)
+
+#get p and q from plots
+acf(d)
+pacf(d)
+adf.test(d)
+ts_state_data %>% diff(lag=12) %>% diff() %>% ggtsdisplay()
+
+#try orders
+t=Arima(ts_state_data,order=c(3,0,1),seasonal=c(0,1,1))
+t %>% residuals() %>% ggtsdisplay()
+checkresiduals(t,plot = FALSE)
+#p-value > 0.05 means significant 
+
+#check AICc
+t
+
+#check RMSE
+fore = forecast(t,h=24)
+
+tnew=state_raw[(length(state_raw)-51):(length(state_raw)-28)]
+tnewnew = t(t(as.vector(fore$mean[1:length(fore$mean)])))
+
+rmse(tnew, tnewnew)
+```
