@@ -1,6 +1,16 @@
 average_weight = t(as.matrix(rowMeans(percentage[-c(1)]), ncol=1))
 sigma = []
 
+del_outlier=function(ts){
+  ind=tsoutliers(ts)$index
+  replece=tsoutliers(ts)$replacements
+  if (length(ind)!=0){
+    for (i in 1:length(ind)){
+      ts[ind[i]]=replece[i]
+    }
+  }
+  return(ts)
+}
 
 
 
