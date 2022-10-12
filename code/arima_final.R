@@ -33,27 +33,23 @@ ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
 plot(ts_state_data,type="l")
 
 
-
-remove_outliers_forecast= function(train_ts){
+auto_arima=function(train_ts){
   temp = c(usadata[1,])
   temp = temp[2:length(temp)]
   state_raw = as.vector(unlist(temp))
   ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
   ts_state_data=del_outlier(ts_state_data)
   
-  fit <- Arima(ts_state_data,order=as.numeric(para[1,1:3]),seasonal=as.numeric(para[1,4:6]))
+  fit <- auto.arima(ts_state_data,seasonal = TRUE)
   ro_pred=forecast(fit,h=12) 
   ro_res= t(t(as.vector(ro_pred$mean[1:length(ro_pred$mean)])))
-  
-  #  stlf_pred = stlf(ts_state_data,method='arima',h=24)
-  #  stlf_res = t(t(as.vector(stlf_pred$mean[1:length(stlf_pred$mean)])))
   for(i in 2:51){
     temp = c(usadata[i,])
     temp = temp[2:length(temp)]
     state_raw = as.vector(unlist(temp))
     ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
     ts_state_data=del_outlier(ts_state_data)
-    fit <- Arima(ts_state_data,order=as.numeric(para[i,1:3]),seasonal=as.numeric(para[i,4:6]))
+    fit <- auto.arima(ts_state_data,seasonal = TRUE)
     ro_pred<-forecast(fit,h=12) 
     ro_pred= t(t(as.vector(ro_pred$mean[1:length(ro_pred$mean)])))
     ro_res=cbind(ro_res,ro_pred)
@@ -61,8 +57,106 @@ remove_outliers_forecast= function(train_ts){
   return(ro_res)
 }
 
+
+
+
+
+STL_forecast= function(train_ts){
+  temp = c(train_ts[1,])
+  temp = temp[2:length(temp)]
+  state_raw = as.vector(unlist(temp))
+  ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
+  ts_state_data=del_outlier(ts_state_data)
+  
+  fit <- stl(ts_state_data,t.window=5, s.window = "periodic")
+  stl_pred=forecast(fit,method="arima",h=12) 
+  stl_res= t(t(as.vector(stl_pred$mean[1:length(stl_pred$mean)])))
+  
+
+  for(i in 2:51){
+    temp = c(train_ts[i,])
+    temp = temp[2:length(temp)]
+    state_raw = as.vector(unlist(temp))
+    ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
+    ts_state_data=del_outlier(ts_state_data)
+    
+    fit <- stl(ts_state_data,t.window=13, s.window = "periodic")
+    stl_pred<-forecast(fit,method="arima",h=12) 
+    stl_pred= t(t(as.vector(stl_pred$mean[1:length(stl_pred$mean)])))
+    stl_res=cbind(stl_res,stl_pred)
+    
+    
+
+  }
+  return(stl_res)
+}
+
+
+
+
+forecast_fun_log = function(train_ts){
+  temp = c(train_ts[1,])
+  temp = temp[2:length(temp)]
+  state_raw = as.vector(unlist(temp))
+  ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
+  ts_state_data=del_outlier(ts_state_data)
+  #above generate ts of 1976-2018 for each state
+  autoresult=auto.arima(log(ts_state_data),seasonal = TRUE)
+  prediction = forecast(autoresult, h=12)
+  prediction = t(t(as.vector(exp(prediction$mean[1:length(prediction$mean)]))))
+  for(i in 2:51){
+    temp = c(train_ts[i,])
+    temp = temp[2:length(temp)]
+    state_raw = as.vector(unlist(temp))
+    ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
+    ts_state_data=del_outlier(ts_state_data)
+    #above generate ts of 1976-2018 for each state
+    autoresult=auto.arima(log(ts_state_data),seasonal = TRUE)
+    fore_res = forecast(autoresult, h=12)
+    fore_res = t(t(as.vector(exp(fore_res$mean[1:length(fore_res$mean)]))))
+    prediction = cbind(prediction, fore_res)
+  }
+  return(prediction)
+}
+
+
+
+
+forecast_fun_log_national = function(train_ts){
+  sigma = c()
+  temp = c(train_ts[52,])
+  temp = temp[2:length(temp)]
+  state_raw = as.vector(unlist(temp))
+  ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
+  ts_state_data=del_outlier(ts_state_data)
+  #above generate ts of 1976-2018 for each state
+  autoresult=auto.arima(log(ts_state_data),seasonal = TRUE)
+  sigma=append(sigma, autoresult$sigma2)
+  prediction = forecast(autoresult, h=12)
+  prediction = t(t(as.vector(exp(prediction$mean[1:length(prediction$mean)]))))
+  for(i in 1:51){
+    temp = c(train_ts[i,])
+    temp = temp[2:length(temp)]
+    state_raw = as.vector(unlist(temp))
+    ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
+    ts_state_data=del_outlier(ts_state_data)
+    #above generate ts of 1976-2018 for each state
+    autoresult=auto.arima(log(ts_state_data),seasonal = TRUE)
+    sigma=append(sigma, autoresult$sigma2)
+    fore_res = forecast(autoresult, h=12)
+    fore_res = t(t(as.vector(exp(fore_res$mean[1:length(fore_res$mean)]))))
+    prediction = cbind(prediction, fore_res)
+  }
+  res <- list("pred" =prediction, "sigma" =sigma)
+  return(res)
+}
+
+
+
+
 forecast_with_national= function(train_ts){
   sigma = c()
+  param =matrix(0,52,3)
   temp = c(usadata[52,])
   temp = temp[2:length(temp)]
   state_raw = as.vector(unlist(temp))
@@ -70,6 +164,7 @@ forecast_with_national= function(train_ts){
   ts_state_data=del_outlier(ts_state_data)
   
   fit <- auto.arima(ts_state_data,seasonal = TRUE)
+  param[1,] = arimaorder(fit)[1:3]
   sigma=append(sigma, fit$sigma2)
   ro_pred=forecast(fit,h=12) 
   ro_res= t(t(as.vector(ro_pred$mean[1:length(ro_pred$mean)])))
@@ -83,29 +178,76 @@ forecast_with_national= function(train_ts){
     ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
     ts_state_data=del_outlier(ts_state_data)
     fit <- Arima(ts_state_data,order=as.numeric(para[i,1:3]),seasonal=as.numeric(para[i,4:6]))
+    param[i+1, ] = as.numeric(para[i,1:3])
     sigma=append(sigma, fit$sigma2)
     ro_pred<-forecast(fit,h=12) 
     ro_pred= t(t(as.vector(ro_pred$mean[1:length(ro_pred$mean)])))
     ro_res=cbind(ro_res,ro_pred)
   }
-  res <- list("pred" =ro_res, "sigma" =sigma)
+  res <- list("pred" =ro_res, "sigma" =sigma, 'param' = param)
   return(res)
 }
-forecast_ro=forecast_with_national(usadata)
-diff1=compare(year,month,forecast_ro$pred[,2:52])
-plot(diff1, type="l",main="perdicted difference",xlab="month", ylab="difference")
+forcast_manual_arima=forecast_with_national(usadata)
+forecast_log_national=forecast_fun_log_national(usadata)
 
-average_weight = t(as.matrix(rowMeans(percentage[-c(1)]), ncol=1))
-wei2 = c(1,average_weight^2)
-#this list has no national data
-sigmatb = c()
+psi_vec  =matrix(0,52,13)
 
-for(i in 1:51){
-  sigmatb = append(sigmatb, sum(wei2[-i]*forecast_ro$sigma[-i]))
+for(i in 1:52){
+  psi_vec[i,] =c(1, ARMAtoMA(ar = forcast_manual_arima$param[i,1], ma = forcast_manual_arima$param[i,3], 12))
 }
-g = c()
+#below are caculating
+
+#psi_vec = c(1, ARMAtoMA(ar = para[1], ma = para[2], 12))
+
+national_variance=c()
+
+temp = c(usadata[52,])
+temp = temp[2:length(temp)]
+national = as.vector(unlist(temp))
+national_nc=national[1:(length(national)-39)]
+national_variance[1]= var(national_nc)
 for(i in 1:51){
-  g = append(g, 1-(forecast_ro$sigma[i]/(forecast_ro$sigma[i] + sigmatb[i])))
+  temp = c(usadata[i,])
+  temp = temp[2:length(temp)]
+  national = as.vector(unlist(temp))
+  national_nc=national[1:(length(national)-39)]
+  national_variance[i+1]= var(national_nc)
+}
+
+
+
+#should be 2 dimension. with row as period and col as state
+sigp2 = matrix(0,12,52)
+
+for(i in 1:12){#also loop on period
+  temp = c()
+  for(j in 1:52){
+    temp[j] = national_variance[j]*sum(psi_vec[j,1:i])
+  }
+  sigp2[i,] = temp
+}
+
+
+
+
+wei2 = c(1, average_weight^2)
+
+
+
+
+#should be each row as each period and col with parameter for each g
+gaa = matrix(0,12,51)
+for(i in 1:12){#number of period here
+  temp = c()
+  sigtb = c()
+  for(j in 1:51){
+    loc = sigp2[i][-1]
+    sigtb = append(sigtb, (sigp2[1,1] + sum(wei2[-j]*loc[-j])))
+  }
+  for(j in 1:51){
+    temp[j] = 1-(sigp2[i,j]/(sigp2[i,j] + sigmatb[j]))
+  }
+  gaa[i,] = temp
 }
 
 
@@ -116,23 +258,49 @@ S[1,]=filler
 for (i in 2:52){
   S[i,i-1] = 1
 }
-
-G = matrix(0, 51, 52)
-#G[,1] = t(average_weight)
-for(i in 1:51){
-  temp = matrix(-g[i], 1,52)
-  G[i,] = temp
-  G[i,1] = g[i]
-  G[i,i+1] = 1-g[i]
+#forecast will be a vector of sigle number which should be the forecast
+forecast = c()
+for(i in 1:12){
+  G = matrix(0, 51, 52)
+  for(j in 1:51){
+    temp = matrix(-1*(1-gaa[i,j]), 1,52)
+    G[j,] = temp
+    G[j,1] = 1-gaa[i,j]
+    G[j,j+1] = gaa[i,j]
+  }
+  recon = S%*%G%*%forcast_manual_arima$pred[i,]
+  forecast[i] = recon[1]
 }
-recon = S%*%G%*%t(forecast_ro$pred)
 
+forecast_decomp=STL_forecast(usadata)
+forecast_log=forecast_fun_log(usadata)
+forecast_auto=auto_arima(usadata)
 
 data=as.numeric(usadata[52,c((2+(2018-1976)*12+12):(2+(2018-1976)*12+11+12))])
-diff=-recon[1,]/1000-matrix(data)
-diff2=forecast_ro$pred[,1]-matrix(data)
-plot(diff2, type="l",main="perdicted difference",xlab="month", ylab="difference",ylim =c(-0.1,0.75),col="green")
-lines(diff,col="red")
-lines(diff1,col="blue")
+diff_recon=-recon[1,]/1000-matrix(data)
+diff_manual_arima=compare(year,month,forcast_manual_arima$pred[,2:52])
+diff_log=compare(year,month,forecast_log)
+diff_log1=compare(year,month,forecast_log_national$pred[,2:52])
+
+diff_decomp=compare(year,month,forecast_decomp)
+diff_auto=compare(year,month,forecast_auto)
+diff_direct=forcast_manual_arima$pred[,1]-matrix(data)
+diffffff=forecast/sum((S%*%G)[1,])-as.numeric(usadata[52,c((2+(2018-1976)*12+12):(2+(2018-1976)*12+11+12))])
+
+plot(diff_auto, type="l",main="Forcast error with different aggregation method",xlab="month", ylab="difference",ylim =c(-0.2,0.75),col="green")
+lines(diff_decomp,col="red")
+lines(diff_log,col="blue")
+lines(diff_manual_arima,col="orange")
+lines(diffffff,col="purple")
+lines(diff_direct,col="dark green")
+
 abline(h=0, v=0)
-legend("topleft", c("with recon", "mannual-arima","direct national"),lty = c(1,1),col = c("red", "blue", "green"),cex=0.7)
+legend("topleft", c("with decomposition", "with log","auto arima","manual arima","with reconciliation","direct forcast"),lty = c(1,1),
+       col = c("red", "blue", "green","orange","purple", "dark green"),cex=0.7)
+
+
+
+
+
+
+
