@@ -40,8 +40,7 @@ forecast_ro=forecast_with_national(usadata)
 psi_vec  = c()
 
 for(i in 1:51){
-  
-  psi_vec[i] = ARMAtoMA(ar = forecast_ro$param[i][1], ma = forecast_ro$param[i][2], 12)
+    psi_vec[i] = ARMAtoMA(ar = forecast_ro$param[i][1], ma = forecast_ro$param[i][2], 12)
 }
 #below are caculating
 
@@ -80,3 +79,26 @@ for(i in 1:12){#number of period here
   }
   gaa[i] = temp
 }
+
+
+
+filler = matrix(1,1,51)
+S = matrix(0,52,51)
+S[1,]=filler
+for (i in 2:52){
+  S[i,i-1] = 1
+}
+#forecast will be a vector of sigle number which should be the forecast
+forecast = c()
+for(i in 1:12){
+    G = matrix(0, 51, 52)
+    for(j in 1:51){
+      temp = matrix(-1*(1-gaa[i][j]), 1,52)
+      G[j,] = temp
+      G[j,1] = 1-gaa[i][j]
+      G[j,j+1] = gaa[i][j]
+    }
+    recon = S%*%G%*%t(forecast_ro$pred[i])
+    forecast[i] = recon[1]
+}
+
