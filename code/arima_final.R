@@ -228,7 +228,7 @@ for(i in 1:12){#also loop on period
 }
 
 
-
+average_weight = t(as.matrix(rowMeans(percentage[-c(1)]), ncol=1))
 
 wei2 = c(1, average_weight^2)
 
