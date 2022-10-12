@@ -9,7 +9,7 @@ forecast_with_national= function(train_ts){
   ts_state_data=del_outlier(ts_state_data)
   
   fit <- auto.arima(ts_state_data,seasonal = TRUE)
-  #param[1] = arimaorder(fit)
+  param[1] = arimaorder(fit)
   sigma=append(sigma, fit$sigma2)
   ro_pred=forecast(fit,h=12) 
   ro_res= t(t(as.vector(ro_pred$mean[1:length(ro_pred$mean)])))
@@ -23,7 +23,7 @@ forecast_with_national= function(train_ts){
     ts_state_data=ts(state_raw,start=c(1976, 1), end=c(year, month), frequency=12)
     ts_state_data=del_outlier(ts_state_data)
     fit <- Arima(ts_state_data,order=as.numeric(para[i,1:3]),seasonal=as.numeric(para[i,4:6]))
-    param[i] = arimaorder(fit)
+    param[i+1] = arimaorder(fit)
     sigma=append(sigma, fit$sigma2)
     ro_pred<-forecast(fit,h=12) 
     ro_pred= t(t(as.vector(ro_pred$mean[1:length(ro_pred$mean)])))
@@ -34,12 +34,12 @@ forecast_with_national= function(train_ts){
 }
 
 
-forecast_ro=forecast_with_national(usadata)
+forecast_ro = forecast_with_national(usadata)
 
 
 psi_vec  = c()
 
-for(i in 1:51){
+for(i in 1:52){
     psi_vec[i] = ARMAtoMA(ar = forecast_ro$param[i][1], ma = forecast_ro$param[i][2], 12)
 }
 #below are caculating
@@ -50,6 +50,7 @@ for(i in 1:51){
 
 #should be 2 dimension. with row as period and col as state
 sigp2 = c()
+
 for(i in 1:12){#also loop on period
   temp = []
   for(j in 1:52){
@@ -72,7 +73,8 @@ for(i in 1:12){#number of period here
   temp = c()
   sigtb = c()
   for(j in 1:51){
-    sigtb = append(sigtb, sum(wei2[-j]*sigp2[i][-j]))
+    loc = sigp2[i][-1]
+    sigtb = append(sigtb, (sigp2[1] + sum(wei2[-j]*loc[-j])))
   }
   for(j in 1:51){
     temp[j] = 1-(sigp2[i][j]/(sigp2[i][j] + sigmatb[j]))
