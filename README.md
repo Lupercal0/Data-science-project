@@ -7,14 +7,8 @@ forecast      (by Rob Hyndman)
 
 there are 3 folders  
 &emsp;The file in summarise folder here is mainly about the summarise of work, which include several part:  
-&emsp;&emsp;Forecast part include two method:ARIMA and LSTM  
-&emsp;&emsp;&emsp;LSTM method is in the LSTM.ipynb file  
-&emsp;&emsp;&emsp;ARIMA method is in the forecast.r file  
-&emsp;&emsp;&emsp;#should be a file conclude manual-checking of arima parameter here#  
-&emsp;&emsp;Aggrefrate part include:  
-&emsp;&emsp;&emsp;reconcilation method is in the recon.r(include special forecas function needed for reconciliation)  
-&emsp;&emsp;&emsp;naive weighted bottom to up method are included in the forecast.r  
-&emsp;&emsp;&emsp;regression method include in recon.r  
+&emsp;&emsp;LSTM method is in the LSTM.ipynb file  
+&emsp;&emsp;ARIMA method and reconciliation is in the arima_final.r file  
 &emsp;The dada folder:  
 &emsp;&emsp;include version of:  
 &emsp;&emsp;&emsp;usa unemployment rate, including national data, 50 states and capital teritory data  
