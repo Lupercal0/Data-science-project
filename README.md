@@ -2,10 +2,12 @@
 #place for data science project code and dataV  
 library needed for this project(except default R package):  
 forecast      (by Rob Hyndman)  
+Data science project group 34:
+Zhiyuan Gao; Weize Cai; Yuqi Cao; Rui Wang; Zoe Wu
 
 
-
-there are 3 folders  
+there are 4 folders 
+&emsp;The file in meeting minutes folder are meetingminutes through the project
 &emsp;The file in summarise folder here is mainly about the summarise of work, which include several part:  
 &emsp;&emsp;LSTM method is in the LSTM.ipynb file  
 &emsp;&emsp;ARIMA method and reconciliation is in the arima_final.r file  
